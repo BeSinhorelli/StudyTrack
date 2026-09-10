@@ -1,0 +1,34 @@
+# Dependências
+node_modules/
+
+# Build
+dist/
+build/
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Banco local (SQLite)
+*.db
+*.db-journal
+
+# Logs
+*.log
+npm-debug.log*
+
+# Testes
+coverage/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# SO
+.DS_Store
+Thumbs.db
+
+# Docker volumes (se criados localmente)
+docker-data/

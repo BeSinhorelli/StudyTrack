@@ -1,0 +1,13 @@
+@import './variables.css';
+@import './reset.css';
+
+/* Utilitários simples */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+}
