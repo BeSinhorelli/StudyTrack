@@ -119,6 +119,9 @@ CREATE UNIQUE INDEX "subjects_user_id_name_key" ON "subjects"("user_id", "name")
 CREATE INDEX "topics_subject_id_idx" ON "topics"("subject_id");
 
 -- CreateIndex
+CREATE INDEX "topics_subject_id_status_idx" ON "topics"("subject_id", "status");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "topics_subject_id_name_key" ON "topics"("subject_id", "name");
 
 -- CreateIndex
@@ -128,22 +131,37 @@ CREATE INDEX "tasks_user_id_status_idx" ON "tasks"("user_id", "status");
 CREATE INDEX "tasks_user_id_due_date_idx" ON "tasks"("user_id", "due_date");
 
 -- CreateIndex
+CREATE INDEX "tasks_user_id_created_at_idx" ON "tasks"("user_id", "created_at");
+
+-- CreateIndex
 CREATE INDEX "study_sessions_user_id_started_at_idx" ON "study_sessions"("user_id", "started_at");
 
 -- CreateIndex
 CREATE INDEX "study_sessions_user_id_subject_id_idx" ON "study_sessions"("user_id", "subject_id");
 
 -- CreateIndex
+CREATE INDEX "study_sessions_subject_id_started_at_idx" ON "study_sessions"("subject_id", "started_at");
+
+-- CreateIndex
+CREATE INDEX "study_sessions_topic_id_idx" ON "study_sessions"("topic_id");
+
+-- CreateIndex
 CREATE INDEX "goals_user_id_deadline_idx" ON "goals"("user_id", "deadline");
+
+-- CreateIndex
+CREATE INDEX "goals_user_id_created_at_idx" ON "goals"("user_id", "created_at");
 
 -- CreateIndex
 CREATE INDEX "notes_user_id_idx" ON "notes"("user_id");
 
 -- CreateIndex
-CREATE INDEX "notes_subject_id_idx" ON "notes"("subject_id");
+CREATE INDEX "notes_user_id_subject_id_idx" ON "notes"("user_id", "subject_id");
 
 -- CreateIndex
-CREATE INDEX "notes_topic_id_idx" ON "notes"("topic_id");
+CREATE INDEX "notes_user_id_topic_id_idx" ON "notes"("user_id", "topic_id");
 
 -- CreateIndex
 CREATE INDEX "study_plans_user_id_idx" ON "study_plans"("user_id");
+
+-- CreateIndex
+CREATE INDEX "study_plans_user_id_start_date_idx" ON "study_plans"("user_id", "start_date");
