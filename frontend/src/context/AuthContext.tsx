@@ -16,6 +16,7 @@ type AuthContextValue = {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
+  updateUser: (user: User) => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -38,7 +39,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const me = await authService.me();
         if (!cancelled) setUser(me);
       } catch {
-        // Token inválido/expirado — limpa e segue como anônimo
         tokenStorage.clear();
       } finally {
         if (!cancelled) setLoading(false);
@@ -71,8 +71,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
+  const updateUser = useCallback((next: User) => {
+    setUser(next);
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider
+      value={{ user, loading, login, register, logout, updateUser }}
+    >
       {children}
     </AuthContext.Provider>
   );

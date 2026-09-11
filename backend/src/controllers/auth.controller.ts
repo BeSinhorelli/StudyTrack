@@ -17,4 +17,14 @@ export const authController = {
     const user = await authService.me(req.user!.id);
     res.json({ success: true, data: user });
   }),
+
+  updateMe: asyncHandler(async (req: Request, res: Response) => {
+    const user = await authService.updateMe(req.user!.id, req.body);
+    res.json({ success: true, data: user });
+  }),
+
+  changePassword: asyncHandler(async (req: Request, res: Response) => {
+    await authService.changePassword(req.user!.id, req.body);
+    res.status(204).send();
+  }),
 };

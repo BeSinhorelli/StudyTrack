@@ -10,6 +10,7 @@ const items = [
   { to: '/goals', label: 'Metas', icon: '🎯' },
   { to: '/notes', label: 'Notas', icon: '📝' },
   { to: '/study-plans', label: 'Planos', icon: '🗓️' },
+  { to: '/profile', label: 'Perfil', icon: '👤' },
 ];
 
 export function Sidebar() {

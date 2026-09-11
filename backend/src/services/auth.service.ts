@@ -8,6 +8,8 @@ const BCRYPT_ROUNDS = 12;
 
 type RegisterInput = { name: string; email: string; password: string };
 type LoginInput = { email: string; password: string };
+type UpdateMeInput = { name?: string; email?: string };
+type ChangePasswordInput = { currentPassword: string; newPassword: string };
 
 type PublicUser = {
   id: string;
@@ -65,5 +67,51 @@ export const authService = {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new AppError('Usuário não encontrado', 404, 'USER_NOT_FOUND');
     return toPublicUser(user);
+  },
+
+  async updateMe(userId: string, input: UpdateMeInput): Promise<PublicUser> {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new AppError('Usuário não encontrado', 404, 'USER_NOT_FOUND');
+
+    if (input.email && input.email !== user.email) {
+      const conflict = await prisma.user.findUnique({ where: { email: input.email } });
+      if (conflict) {
+        throw new AppError('Email já cadastrado', 409, 'EMAIL_IN_USE');
+      }
+    }
+
+    const updated = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(input.name !== undefined ? { name: input.name } : {}),
+        ...(input.email !== undefined ? { email: input.email } : {}),
+      },
+    });
+
+    return toPublicUser(updated);
+  },
+
+  async changePassword(userId: string, input: ChangePasswordInput): Promise<void> {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new AppError('Usuário não encontrado', 404, 'USER_NOT_FOUND');
+
+    const ok = await bcrypt.compare(input.currentPassword, user.passwordHash);
+    if (!ok) {
+      throw new AppError('Senha atual incorreta', 400, 'INVALID_CURRENT_PASSWORD');
+    }
+
+    if (input.currentPassword === input.newPassword) {
+      throw new AppError(
+        'Nova senha deve ser diferente da atual',
+        400,
+        'PASSWORD_UNCHANGED',
+      );
+    }
+
+    const newHash = await bcrypt.hash(input.newPassword, BCRYPT_ROUNDS);
+    await prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash: newHash },
+    });
   },
 };
