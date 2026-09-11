@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { plansService } from '../../services/plans.service';
 import { getErrorMessage } from '../../services/api';
+import { useToast } from '../../context/ToastContext';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
@@ -15,6 +16,7 @@ import type { StudyPlan } from '../../types/models';
 import styles from './StudyPlans.module.css';
 
 export function StudyPlans() {
+  const toast = useToast();
   const [plans, setPlans] = useState<StudyPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -45,10 +47,11 @@ export function StudyPlans() {
     setDeleteLoading(true);
     try {
       await plansService.remove(deleting.id);
+      toast.success(`Plano "${deleting.title}" excluído`);
       setDeleting(null);
       await load();
     } catch (err) {
-      setError(getErrorMessage(err));
+      toast.error(getErrorMessage(err));
       setDeleting(null);
     } finally {
       setDeleteLoading(false);
@@ -141,8 +144,9 @@ export function StudyPlans() {
         open={formOpen}
         plan={editing}
         onClose={() => setFormOpen(false)}
-        onSaved={async () => {
+        onSaved={async (action) => {
           setFormOpen(false);
+          toast.success(action === 'edit' ? 'Plano atualizado' : 'Plano criado');
           await load();
         }}
       />

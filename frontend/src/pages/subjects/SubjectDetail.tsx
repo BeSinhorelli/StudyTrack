@@ -3,10 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { subjectsService } from '../../services/subjects.service';
 import { topicsService } from '../../services/topics.service';
 import { getErrorMessage } from '../../services/api';
+import { useToast } from '../../context/ToastContext';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
 import { Loading } from '../../components/feedback/Loading';
 import { ErrorMessage } from '../../components/feedback/ErrorMessage';
 import { EmptyState } from '../../components/feedback/EmptyState';
@@ -19,6 +19,7 @@ import styles from './SubjectDetail.module.css';
 export function SubjectDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const toast = useToast();
 
   const [subject, setSubject] = useState<Subject | null>(null);
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -57,10 +58,11 @@ export function SubjectDetail() {
     setDeleteLoading(true);
     try {
       await topicsService.remove(deleting.id);
+      toast.success(`Tópico "${deleting.name}" excluído`);
       setDeleting(null);
       await load();
     } catch (err) {
-      setError(getErrorMessage(err));
+      toast.error(getErrorMessage(err));
       setDeleting(null);
     } finally {
       setDeleteLoading(false);
@@ -78,7 +80,7 @@ export function SubjectDetail() {
       await topicsService.update(topic.id, { status: next });
       await load();
     } catch (err) {
-      setError(getErrorMessage(err));
+      toast.error(getErrorMessage(err));
     }
   }
 
@@ -176,8 +178,9 @@ export function SubjectDetail() {
         subjectId={subject.id}
         topic={editingTopic}
         onClose={() => setFormOpen(false)}
-        onSaved={async () => {
+        onSaved={async (action) => {
           setFormOpen(false);
+          toast.success(action === 'edit' ? 'Tópico atualizado' : 'Tópico criado');
           await load();
         }}
       />

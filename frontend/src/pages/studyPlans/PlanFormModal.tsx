@@ -13,7 +13,7 @@ type Props = {
   open: boolean;
   plan: StudyPlan | null;
   onClose: () => void;
-  onSaved: () => void;
+  onSaved: (action: 'create' | 'edit') => void;
 };
 
 function toInputDate(iso: string): string {
@@ -70,10 +70,11 @@ export function PlanFormModal({ open, plan, onClose, onSaved }: Props) {
       };
       if (isEditing) {
         await plansService.update(plan.id, payload);
+        onSaved('edit');
       } else {
         await plansService.create(payload);
+        onSaved('create');
       }
-      onSaved();
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {

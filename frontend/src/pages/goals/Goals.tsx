@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { goalsService } from '../../services/goals.service';
 import { getErrorMessage } from '../../services/api';
+import { useToast } from '../../context/ToastContext';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
@@ -16,6 +17,7 @@ import type { Goal } from '../../types/models';
 import styles from './Goals.module.css';
 
 export function Goals() {
+  const toast = useToast();
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -46,10 +48,11 @@ export function Goals() {
     setDeleteLoading(true);
     try {
       await goalsService.remove(deleting.id);
+      toast.success(`Meta "${deleting.title}" excluída`);
       setDeleting(null);
       await load();
     } catch (err) {
-      setError(getErrorMessage(err));
+      toast.error(getErrorMessage(err));
       setDeleting(null);
     } finally {
       setDeleteLoading(false);
@@ -147,8 +150,9 @@ export function Goals() {
         open={formOpen}
         goal={editing}
         onClose={() => setFormOpen(false)}
-        onSaved={async () => {
+        onSaved={async (action) => {
           setFormOpen(false);
+          toast.success(action === 'edit' ? 'Meta atualizada' : 'Meta criada');
           await load();
         }}
       />

@@ -12,21 +12,15 @@ import styles from './SubjectFormModal.module.css';
 const DEFAULT_COLOR = '#6366f1';
 
 const PRESET_COLORS = [
-  '#6366f1', // indigo
-  '#3b82f6', // blue
-  '#10b981', // green
-  '#f59e0b', // amber
-  '#ef4444', // red
-  '#ec4899', // pink
-  '#8b5cf6', // violet
-  '#06b6d4', // cyan
+  '#6366f1', '#3b82f6', '#10b981', '#f59e0b',
+  '#ef4444', '#ec4899', '#8b5cf6', '#06b6d4',
 ];
 
 type Props = {
   open: boolean;
   subject: Subject | null;
   onClose: () => void;
-  onSaved: () => void;
+  onSaved: (action: 'create' | 'edit') => void;
 };
 
 export function SubjectFormModal({ open, subject, onClose, onSaved }: Props) {
@@ -63,10 +57,11 @@ export function SubjectFormModal({ open, subject, onClose, onSaved }: Props) {
       };
       if (isEditing) {
         await subjectsService.update(subject.id, payload);
+        onSaved('edit');
       } else {
         await subjectsService.create(payload);
+        onSaved('create');
       }
-      onSaved();
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {

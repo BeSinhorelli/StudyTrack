@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { sessionsService } from '../../services/sessions.service';
 import { subjectsService } from '../../services/subjects.service';
 import { getErrorMessage } from '../../services/api';
+import { useToast } from '../../context/ToastContext';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
@@ -17,6 +18,7 @@ import type { StudySession, Subject } from '../../types/models';
 import styles from './StudySessions.module.css';
 
 export function StudySessions() {
+  const toast = useToast();
   const [sessions, setSessions] = useState<StudySession[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
 
@@ -63,10 +65,11 @@ export function StudySessions() {
     setDeleteLoading(true);
     try {
       await sessionsService.remove(deleting.id);
+      toast.success('Sessão excluída');
       setDeleting(null);
       await load();
     } catch (err) {
-      setError(getErrorMessage(err));
+      toast.error(getErrorMessage(err));
       setDeleting(null);
     } finally {
       setDeleteLoading(false);
@@ -80,7 +83,6 @@ export function StudySessions() {
   }
 
   const hasFilters = filterSubject || filterFrom || filterTo;
-
   const totalMinutes = sessions.reduce((acc, s) => acc + s.durationMinutes, 0);
 
   return (
@@ -190,8 +192,9 @@ export function StudySessions() {
         open={formOpen}
         session={editing}
         onClose={() => setFormOpen(false)}
-        onSaved={async () => {
+        onSaved={async (action) => {
           setFormOpen(false);
+          toast.success(action === 'edit' ? 'Sessão atualizada' : 'Sessão registrada');
           await load();
         }}
       />

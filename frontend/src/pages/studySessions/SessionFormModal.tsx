@@ -17,7 +17,7 @@ type Props = {
   open: boolean;
   session: StudySession | null;
   onClose: () => void;
-  onSaved: () => void;
+  onSaved: (action: 'create' | 'edit') => void;
 };
 
 function toInputDateTime(iso: string): string {
@@ -50,13 +50,11 @@ export function SessionFormModal({ open, session, onClose, onSaved }: Props) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Carrega matérias quando abre
   useEffect(() => {
     if (!open) return;
     subjectsService.list().then(setSubjects).catch(() => {});
   }, [open]);
 
-  // Carrega tópicos quando a matéria muda
   useEffect(() => {
     if (!subjectId) {
       setTopics([]);
@@ -65,7 +63,6 @@ export function SessionFormModal({ open, session, onClose, onSaved }: Props) {
     topicsService.list(subjectId).then(setTopics).catch(() => {});
   }, [subjectId]);
 
-  // Preenche form
   useEffect(() => {
     if (!open) return;
     if (session) {
@@ -84,7 +81,6 @@ export function SessionFormModal({ open, session, onClose, onSaved }: Props) {
     setError('');
   }, [open, session]);
 
-  // Duração em tempo real (feedback visual)
   const durationLabel = (() => {
     if (!startedAt || !endedAt) return null;
     const diffMs = new Date(endedAt).getTime() - new Date(startedAt).getTime();
@@ -106,10 +102,11 @@ export function SessionFormModal({ open, session, onClose, onSaved }: Props) {
       };
       if (isEditing) {
         await sessionsService.update(session.id, payload);
+        onSaved('edit');
       } else {
         await sessionsService.create(payload);
+        onSaved('create');
       }
-      onSaved();
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {

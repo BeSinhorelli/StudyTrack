@@ -21,7 +21,7 @@ type Props = {
   subjectId: string;
   topic: Topic | null;
   onClose: () => void;
-  onSaved: () => void;
+  onSaved: (action: 'create' | 'edit') => void;
 };
 
 export function TopicFormModal({ open, subjectId, topic, onClose, onSaved }: Props) {
@@ -57,6 +57,7 @@ export function TopicFormModal({ open, subjectId, topic, onClose, onSaved }: Pro
           description: description.trim() || undefined,
           status,
         });
+        onSaved('edit');
       } else {
         await topicsService.create({
           subjectId,
@@ -64,8 +65,8 @@ export function TopicFormModal({ open, subjectId, topic, onClose, onSaved }: Pro
           description: description.trim() || undefined,
           status,
         });
+        onSaved('create');
       }
-      onSaved();
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {

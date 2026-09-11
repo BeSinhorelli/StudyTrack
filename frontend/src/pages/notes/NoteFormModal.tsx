@@ -16,7 +16,7 @@ type Props = {
   open: boolean;
   note: Note | null;
   onClose: () => void;
-  onSaved: () => void;
+  onSaved: (action: 'create' | 'edit') => void;
 };
 
 export function NoteFormModal({ open, note, onClose, onSaved }: Props) {
@@ -73,10 +73,11 @@ export function NoteFormModal({ open, note, onClose, onSaved }: Props) {
       };
       if (isEditing) {
         await notesService.update(note.id, payload);
+        onSaved('edit');
       } else {
         await notesService.create(payload);
+        onSaved('create');
       }
-      onSaved();
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {

@@ -28,10 +28,9 @@ type Props = {
   open: boolean;
   task: Task | null;
   onClose: () => void;
-  onSaved: () => void;
+  onSaved: (action: 'create' | 'edit') => void;
 };
 
-/** Converte ISO string para formato aceito pelo input datetime-local */
 function toInputDateTime(iso: string | null): string {
   if (!iso) return '';
   const d = new Date(iso);
@@ -87,10 +86,11 @@ export function TaskFormModal({ open, task, onClose, onSaved }: Props) {
       };
       if (isEditing) {
         await tasksService.update(task.id, payload);
+        onSaved('edit');
       } else {
         await tasksService.create(payload);
+        onSaved('create');
       }
-      onSaved();
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {

@@ -14,7 +14,7 @@ type Props = {
   open: boolean;
   goal: Goal | null;
   onClose: () => void;
-  onSaved: () => void;
+  onSaved: (action: 'create' | 'edit') => void;
 };
 
 function toInputDate(iso: string): string {
@@ -75,10 +75,11 @@ export function GoalFormModal({ open, goal, onClose, onSaved }: Props) {
       };
       if (isEditing) {
         await goalsService.update(goal.id, payload);
+        onSaved('edit');
       } else {
         await goalsService.create(payload);
+        onSaved('create');
       }
-      onSaved();
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {

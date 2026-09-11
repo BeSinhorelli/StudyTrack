@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { tasksService } from '../../services/tasks.service';
 import { subjectsService } from '../../services/subjects.service';
 import { getErrorMessage } from '../../services/api';
+import { useToast } from '../../context/ToastContext';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
@@ -18,6 +19,7 @@ import type { Task, Subject, TaskStatus } from '../../types/models';
 import styles from './Tasks.module.css';
 
 export function Tasks() {
+  const toast = useToast();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [filterStatus, setFilterStatus] = useState<TaskStatus | ''>('');
@@ -63,10 +65,11 @@ export function Tasks() {
     setDeleteLoading(true);
     try {
       await tasksService.remove(deleting.id);
+      toast.success(`Tarefa "${deleting.title}" excluída`);
       setDeleting(null);
       await load();
     } catch (err) {
-      setError(getErrorMessage(err));
+      toast.error(getErrorMessage(err));
       setDeleting(null);
     } finally {
       setDeleteLoading(false);
@@ -197,8 +200,9 @@ export function Tasks() {
         open={formOpen}
         task={editing}
         onClose={() => setFormOpen(false)}
-        onSaved={async () => {
+        onSaved={async (action) => {
           setFormOpen(false);
+          toast.success(action === 'edit' ? 'Tarefa atualizada' : 'Tarefa criada');
           await load();
         }}
       />

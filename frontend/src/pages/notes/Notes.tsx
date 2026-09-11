@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { notesService } from '../../services/notes.service';
 import { subjectsService } from '../../services/subjects.service';
 import { getErrorMessage } from '../../services/api';
+import { useToast } from '../../context/ToastContext';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
@@ -16,6 +17,7 @@ import type { Note, Subject } from '../../types/models';
 import styles from './Notes.module.css';
 
 export function Notes() {
+  const toast = useToast();
   const [notes, setNotes] = useState<Note[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [filterSubject, setFilterSubject] = useState('');
@@ -53,10 +55,11 @@ export function Notes() {
     setDeleteLoading(true);
     try {
       await notesService.remove(deleting.id);
+      toast.success(`Anotação "${deleting.title}" excluída`);
       setDeleting(null);
       await load();
     } catch (err) {
-      setError(getErrorMessage(err));
+      toast.error(getErrorMessage(err));
       setDeleting(null);
     } finally {
       setDeleteLoading(false);
@@ -137,8 +140,9 @@ export function Notes() {
         open={formOpen}
         note={editing}
         onClose={() => setFormOpen(false)}
-        onSaved={async () => {
+        onSaved={async (action) => {
           setFormOpen(false);
+          toast.success(action === 'edit' ? 'Anotação atualizada' : 'Anotação criada');
           await load();
         }}
       />

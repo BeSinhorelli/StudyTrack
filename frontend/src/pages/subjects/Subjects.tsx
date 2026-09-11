@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { subjectsService } from '../../services/subjects.service';
 import { getErrorMessage } from '../../services/api';
+import { useToast } from '../../context/ToastContext';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
@@ -15,6 +16,7 @@ import styles from './Subjects.module.css';
 
 export function Subjects() {
   const navigate = useNavigate();
+  const toast = useToast();
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -56,10 +58,11 @@ export function Subjects() {
     setDeleteLoading(true);
     try {
       await subjectsService.remove(deleting.id);
+      toast.success(`Matéria "${deleting.name}" excluída`);
       setDeleting(null);
       await load();
     } catch (err) {
-      setError(getErrorMessage(err));
+      toast.error(getErrorMessage(err));
       setDeleting(null);
     } finally {
       setDeleteLoading(false);
@@ -89,33 +92,16 @@ export function Subjects() {
         <div className={styles.grid}>
           {subjects.map((s) => (
             <Card key={s.id} className={styles.card}>
-              <div
-                className={styles.colorBar}
-                style={{ background: s.color }}
-              />
+              <div className={styles.colorBar} style={{ background: s.color }} />
               <div className={styles.cardBody}>
                 <h3 className={styles.name}>{s.name}</h3>
-                {s.description && (
-                  <p className={styles.description}>{s.description}</p>
-                )}
+                {s.description && <p className={styles.description}>{s.description}</p>}
                 <div className={styles.actions}>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => navigate(`/subjects/${s.id}`)}
-                  >
+                  <Button variant="secondary" size="sm" onClick={() => navigate(`/subjects/${s.id}`)}>
                     Ver detalhes
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => openEdit(s)}>
-                    Editar
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setDeleting(s)}
-                  >
-                    Excluir
-                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => openEdit(s)}>Editar</Button>
+                  <Button variant="ghost" size="sm" onClick={() => setDeleting(s)}>Excluir</Button>
                 </div>
               </div>
             </Card>
@@ -127,8 +113,9 @@ export function Subjects() {
         open={formOpen}
         subject={editing}
         onClose={() => setFormOpen(false)}
-        onSaved={async () => {
+        onSaved={async (action) => {
           setFormOpen(false);
+          toast.success(action === 'edit' ? 'Matéria atualizada' : 'Matéria criada');
           await load();
         }}
       />
