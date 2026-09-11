@@ -49,15 +49,14 @@ export function Dashboard() {
   if (!summary || !charts || !stats) return null;
 
   const hasSessions = stats.totalSessions > 0;
+  const hasDayData = charts.byDay.length > 0;
+  const hasSubjectData = charts.bySubject.length > 0;
 
   return (
     <>
-      <PageHeader
-        title="Dashboard"
-        subtitle="Acompanhe seu progresso nos estudos"
-      />
+      <PageHeader title="Dashboard" subtitle="Acompanhe seu progresso nos estudos" />
 
-      {/* Cards de resumo */}
+      {/* Cards de horas + streak */}
       <section className={styles.cards}>
         <Card className={styles.statCard}>
           <span className={styles.statLabel}>Hoje</span>
@@ -79,7 +78,7 @@ export function Dashboard() {
         </Card>
       </section>
 
-      {/* Tasks / goals */}
+      {/* Cards de tarefas + metas */}
       <section className={styles.cards}>
         <Card className={styles.statCard}>
           <span className={styles.statLabel}>Tarefas pendentes</span>
@@ -110,41 +109,52 @@ export function Dashboard() {
         <div className={styles.chartsGrid}>
           <Card className={styles.chartCard}>
             <h3 className={styles.chartTitle}>Horas por dia (últimos 30 dias)</h3>
-            <div className={styles.chartWrapper}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={charts.byDay}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e4e6eb" />
-                  <XAxis
-                    dataKey="date"
-                    tickFormatter={formatDateShort}
-                    fontSize={12}
-                    stroke="#6b7280"
-                  />
-                  <YAxis fontSize={12} stroke="#6b7280" />
-                  <Tooltip
-                    formatter={(v: number) => [formatHours(v), 'Horas']}
-                    labelFormatter={(label) => `Data: ${formatDateShort(label)}`}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="hours"
-                    stroke="var(--color-primary)"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
+            {!hasDayData ? (
+              <p className="text-muted">Sem dados no período.</p>
+            ) : (
+              <div className={styles.chartWrapper}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={charts.byDay}
+                    margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e4e6eb" />
+                    <XAxis
+                      dataKey="date"
+                      tickFormatter={formatDateShort}
+                      fontSize={12}
+                      stroke="#6b7280"
+                    />
+                    <YAxis fontSize={12} stroke="#6b7280" />
+                    <Tooltip
+                      formatter={(v: number) => [formatHours(v), 'Horas']}
+                      labelFormatter={(label) => `Data: ${formatDateShort(label)}`}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="hours"
+                      stroke="#6366f1"
+                      strokeWidth={2}
+                      dot={{ r: 3, fill: '#6366f1' }}
+                      activeDot={{ r: 5 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            )}
           </Card>
 
           <Card className={styles.chartCard}>
             <h3 className={styles.chartTitle}>Horas por matéria</h3>
-            {charts.bySubject.length === 0 ? (
-              <p className="text-muted">Sem dados.</p>
+            {!hasSubjectData ? (
+              <p className="text-muted">Sem dados no período.</p>
             ) : (
               <div className={styles.chartWrapper}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={charts.bySubject}>
+                  <BarChart
+                    data={charts.bySubject}
+                    margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" stroke="#e4e6eb" />
                     <XAxis dataKey="name" fontSize={12} stroke="#6b7280" />
                     <YAxis fontSize={12} stroke="#6b7280" />
@@ -166,18 +176,22 @@ export function Dashboard() {
       <section className={styles.statsGrid}>
         <Card>
           <span className={styles.statLabel}>Total estudado</span>
+          <br></br>
           <span className={styles.statValue}>{formatHours(stats.totalHours)}</span>
         </Card>
         <Card>
           <span className={styles.statLabel}>Sessões registradas</span>
+          <br></br>
           <span className={styles.statValue}>{stats.totalSessions}</span>
         </Card>
         <Card>
           <span className={styles.statLabel}>Maior sessão</span>
+          <br></br>
           <span className={styles.statValue}>{formatHours(stats.longestSession)}</span>
         </Card>
         <Card>
           <span className={styles.statLabel}>Matéria mais estudada</span>
+          <br></br>
           <span className={styles.statValue}>
             {stats.mostStudiedSubject?.name ?? '—'}
           </span>

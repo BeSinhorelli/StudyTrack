@@ -16,10 +16,8 @@ RUN npm run build
 # ─────────────────────────────────────────────
 FROM nginx:1.27-alpine AS runtime
 
-# Config customizada (proxy /api → backend)
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Estáticos buildados
 COPY --from=build /app/dist /usr/share/nginx/html
 
 EXPOSE 80
