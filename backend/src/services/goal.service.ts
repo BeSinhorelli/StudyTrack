@@ -21,7 +21,10 @@ async function calculateProgress(goal: {
     where: {
       userId: goal.userId,
       ...(goal.subjectId ? { subjectId: goal.subjectId } : {}),
-      startedAt: { gte: goal.createdAt, lte: goal.deadline },
+      startedAt: {
+        gte: goal.createdAt,
+        lte: goal.deadline,
+      },
     },
     select: { durationMinutes: true },
   });
