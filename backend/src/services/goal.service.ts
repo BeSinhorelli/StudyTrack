@@ -21,10 +21,9 @@ async function calculateProgress(goal: {
     where: {
       userId: goal.userId,
       ...(goal.subjectId ? { subjectId: goal.subjectId } : {}),
-      startedAt: {
-        gte: goal.createdAt,
-        lte: goal.deadline,
-      },
+      // Conta TODAS as sessões até o deadline da meta
+      // (não importa se foi antes ou depois da criação da meta)
+      startedAt: { lte: goal.deadline },
     },
     select: { durationMinutes: true },
   });
